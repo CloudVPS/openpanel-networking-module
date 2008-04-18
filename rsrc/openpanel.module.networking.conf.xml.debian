@@ -1,0 +1,15 @@
+<openpanel.module.domain>
+
+	<config>
+		<varpath>/var/opencore/conf/staging/Networking/</varpath>
+		
+		<!-- Path to the system network configuration files -->
+		<system:interfaces>/etc/network/interfaces</system:interfaces>
+		<system:hostname>/etc/hostname</system:hostname>
+		<system:network>/etc/network</system:network>
+		<system:networkdir>/etc/network/</system:networkdir>
+		<system:servicename>networking</system:servicename>
+		
+	</config>
+	
+</openpanel.module.domain>

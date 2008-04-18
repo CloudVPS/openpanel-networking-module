@@ -1,0 +1,17 @@
+auto lo
+iface lo inet loopback
+	address 127.0.0.1
+	netmask 255.0.0.0
+
+auto eth0
+iface eth0 inet static
+	address 87.233.22.37
+	netmask 255.255.255.240
+	network 87.233.22.33
+	broadcast 87.233.22.47	
+	gateway 87.233.22.33
+
+auto eth0:1
+iface eth0:1 inet static
+	address 87.233.22.38
+	netmask 255.255.255.255

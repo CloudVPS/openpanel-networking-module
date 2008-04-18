@@ -1,0 +1,133 @@
+# ============================================================================
+# OpenPanel Networking.module for controlling network settings.
+# Copyright (C) 2008 PanelSix V.O.F.
+# ============================================================================
+module Networking				< uuid d16089e4-3966-44c0-8b53-03e3fea129a6
+								< version 1.0
+								< languages en_EN
+								< apitype xml
+								< getconfig true
+
+
+# ============================================================================
+# CLASSES
+# ============================================================================
+class Network					< uuid 30691f95-78c2-4fa6-a0c7-6a561e426488
+								< version 2
+								< indexing manual
+								< worldreadable true
+								< singleton net
+								< shortname network
+								< title Network
+								< description Network Settings
+								< sortindex 80
+								< icon network.png
+								< explanation network.html
+								
+								< capabilities admin
+								
+	bool networking				: Enable Networking
+	
+	string hostname				: Hostname
+								< example host.example.net
+	
+	bool forward_ipv4			: Forward IPv4
+	
+	string gateway				: Gateway
+								< regexp [:ipv4:]
+								< example 10.1.1.1
+
+
+# ----------------------------------------------------------------------------
+class Network:Interface			< uuid 22cd5f5a-9aec-434a-b568-fc0fdb0ed959
+								< version 2
+								< requires Network
+								< indexing manual
+								< uniquein class
+								< dynamic true
+								< worldreadable true
+								< shortname interface
+								< title Network Interface
+								< description Network Interface
+								< sortindex 95
+								
+								< capabilities
+								
+	string id					: Name
+								< regexp eth[0-9]:[0-9]*
+								< gridwidth 10
+								
+	enum mac					: MAC address
+								< flags
+								< clihide true
+								< gridwidth 38
+	
+	string address				: IP address
+								< regexp [:ipv4:]
+								< example 10.1.1.2
+								< gridwidth 25
+	
+	enum netmask				: Netmask
+								< regexp [:ipv4:]
+								< default 255.255.255.0
+								< gridwidth 25
+	
+	bool onboot					: Autostart
+								< default true
+								< gridhide true
+	
+	enum type					: Hardware
+								< flags
+								< default Ethernet
+								< gridhide true
+
+
+# ============================================================================
+# ENUMS
+# ============================================================================
+enum type
+	ethernet					: Ethernet
+	
+# TODO: fliparound? or how about '/32 : /32 255.255.255.255' so that cli shows /32 and gui shows both
+enum netmask
+	255.255.255.255				: /32
+	255.255.255.254				: /31
+	255.255.255.252				: /30
+	255.255.255.248				: /29
+	255.255.255.240				: /28
+	255.255.255.224				: /27
+	255.255.255.192				: /26
+	255.255.255.128				: /25
+	255.255.255.0				: /24
+	255.255.254.0				: /23
+	255.255.252.0				: /22
+	255.255.248.0				: /21
+	255.255.240.0				: /20
+	255.255.224.0				: /19
+	255.255.192.0				: /18
+	255.255.128.0				: /17
+	255.255.0.0					: /16
+
+
+# ============================================================================
+# AUTHD
+# ============================================================================
+authd fileops
+	match interfaces			: /etc/network
+	match hostname				: /etc
+	match ifcfg-*				: /etc/sysconfig/network-scripts
+	match network				: /etc/sysconfig
+	
+	
+authd services
+	service %%NETWORKSVC%%
+
+
+# ============================================================================
+# DISTRO MACROS
+# ============================================================================
+distro debian
+	macro NETWORKSVC			: networking
+
+distro redhat
+	macro NETWORKSVC			: network

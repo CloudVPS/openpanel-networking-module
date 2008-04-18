@@ -1,0 +1,2 @@
+191.255.255.0/24 dev venet0 scope host
+default via 191.255.255.1

@@ -1,0 +1,7 @@
+syntax: glob
+networkingmodule.app
+*.o
+makeinclude
+platform.h
+rsrc/openpanel.module.networking.conf.xml
+module.xml

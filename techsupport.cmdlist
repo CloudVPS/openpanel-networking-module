@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dict>
+        <string id="ifconfig">ifconfig</string>
+        <string id="routes1">route -n</string>
+        <string id="routes2">netstat -nr</string>
+</dict>
