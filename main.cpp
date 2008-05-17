@@ -96,7 +96,7 @@ value *networkingModule::objectlist (void)
 			ln = P.gets ();
 			value words = strutil::splitspace (ln);
 			
-			if (words[0].sval().strncmp ("eth", 3) == 0)
+			if (words[0].sval().strncmp ("lo", 2) == 0)
 			{
 				unsigned long long ifkey = checksum64 (words[0].cval());
 				
