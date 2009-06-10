@@ -57,7 +57,7 @@ class Network:Interface			< uuid 22cd5f5a-9aec-434a-b568-fc0fdb0ed959
 								< regexp eth[0-9]:[0-9]*
 								< gridwidth 10
 								
-	enum mac					: MAC address
+	string mac					: MAC address
 								< flags
 								< clihide true
 								< gridwidth 38
