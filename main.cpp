@@ -161,11 +161,12 @@ value *networkingModule::getInterfaceList (void)
 	while (! P.eof())
 	{
 		string ln = P.gets();
+		if (! ln) continue;
 		if (ln[0] != ' ')
 		{
 			if (isup)
 			{
-				res[ifkey]["metaid"] = curif;
+				res[ifuuid]["metaid"] = curif;
 			}
 			ln.cropafter (": ");
 			curif = ln.cutat (": <");
@@ -248,7 +249,7 @@ value *networkingModule::getInterfaceList (void)
 
 	if (isup)
 	{
-		res[ifkey]["metaid"] = curif;
+		res[ifuuid]["metaid"] = curif;
 	}
 	
 	return &res;
