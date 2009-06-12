@@ -48,10 +48,15 @@ int networkingModule::main (void)
 	// Depend the actions which has to 
 	// be executed
 	//
+	
+	string cmd = data["OpenCORE:Command"];
+	string parentid = data["OpenCORE:Session"]["parentid"];
+	string classid = data["OpenCORE:Session"]["classid"];
+	
 	caseselector (data["OpenCORE:Command"])
 	{
 		incaseof ("listobjects") :
-			listobjects ();
+			listobjects (classid, parentid);
 			break;
 			
 		incaseof ("getconfig") :
@@ -80,97 +85,240 @@ int networkingModule::main (void)
 	return 0;
 }
 
-value *networkingModule::objectlist (void)
+string *networkingModule::getDefaultGatewayIPv4 (void)
 {
-	returnclass (value) iflist retain;
-
-	try
+	returnclass (string) res retain;
+	string cmd = "/sbin/ip route show";
+	systemprocess P (cmd);
+	P.run ();
+	while (! P.eof())
 	{
-		string ln;
-		string cmd = "/sbin/ifconfig";
-		systemprocess P (cmd);
-		P.run ();
-		
-		while (! P.eof())
+		string ln = P.gets();
+		if (ln.strncmp ("default via ", 12) == 0)
 		{
-			ln = P.gets ();
-			value words = strutil::splitspace (ln);
-			
-			if (words[0].sval().strncmp ("lo", 2) != 0)
+			ln.cropafter ("via ");
+			ln.cropat (" ");
+			res = ln;
+		}
+	}
+	P.close ();
+	P.serialize ();
+	return &res;
+}
+
+string *networkingModule::getDefaultGatewayIPv6 (void)
+{
+	returnclass (string) res retain;
+	string cmd = "/sbin/ip -6 route show";
+	systemprocess P (cmd);
+	P.run ();
+	while (! P.eof())
+	{
+		string ln = P.gets();
+		if (ln.strncmp ("default via ", 12) == 0)
+		{
+			ln.cropafter ("via ");
+			ln.cropat (" ");
+			res = ln;
+		}
+	}
+	P.close ();
+	P.serialize ();
+	return &res;
+}
+
+value *networkingModule::getInterfaceList (void)
+{
+	returnclass (value) res retain;
+	statstring curif;
+	unsigned int ifkey;
+	string ifuuid;
+	value panelips;
+	
+	file fips;
+	if (fips.openread ("/etc/openpanel/ips.conf"))
+	{
+		while (! fips.eof())
+		{
+			string ln = fips.gets();
+			value v = strutil::split (ln, ':');
+			if (v.count() != 3)
 			{
-				unsigned long long ifkey = checksum64 (words[0].cval());
-				
-				string uuid;
-				// 1fc04f1g
-				// 1facecf9
-				uuid = "1facecf9-0000-0000-%04x-%04x%08x" %format
-					   ((ifkey & 0xffff000000000000LL) >> 48,
-					    (ifkey & 0x0000ffff00000000LL) >> 32,
-					    (ifkey & 0x00000000ffffffffLL));
-				
-				string iface = words[0];
-				string mac = words[4];
-				
-				ln = P.gets ();
-				words = strutil::splitspace (ln);
-				
-				string ip = words[1];
-				string bcast = words[2];
-				string mask = words[3];
-				
-				ip.cropafterlast (':');
-				bcast.cropafterlast (':');
-				mask.cropafterlast (':');
-				
-				iflist[iface] = $("address", ip) ->
-								$("id", iface) ->
-								$("metaid", iface) ->
-								$("uuid", uuid) ->
-								$("netmask", mask) ->
-								$("mac", mac) ->
-								$("type", "Ethernet") ->
-								$("onboot", true);
+				statstring ifname = v[0];
+				statstring addrtype = v[1];
+				string addrmask = v[2];
+				panelips[ifname][addrtype].newval() = addrmask;
+			}
+		}
+		fips.close ();
+	}
+	
+	bool isup = false;
+
+	string cmd = "/sbin/ip addr show scope global";
+	systemprocess P (cmd);
+	P.run ();
+	while (! P.eof())
+	{
+		string ln = P.gets();
+		if (ln[0] != ' ')
+		{
+			if (isup)
+			{
+				res[ifkey]["metaid"] = curif;
+			}
+			ln.cropafter (": ");
+			curif = ln.cutat (": <");
+			ifkey = curif.key();
+			ifuuid = "1face000-1337-1337-1337-0000%08x" %format (ifkey);
+
+			ln.cropat ('>');
+			value states = strutil::split (ln, ',');
+			isup = false;
+			foreach (st,states) { if (st == "UP") isup = true; }
+		}
+		else if (! isup) continue;
+		else if (ln.strncmp ("    link/ether"))
+		{
+			ln.cropafter ("link/ether ");
+			ln.cropat (" ");
+			res[ifuuid]["mac"] = ln;
+		}
+		else if (ln.strncmp ("    link/"))
+		{
+			isup = false;
+		}
+		else if (ln.strncmp ("    inet "))
+		{
+			ln.cropafter ("inet ");
+			ln.cropat (" ");
+			statstring ipmask = ln;
+			string mask = "/%s" %format (ln.cutafter ('/'));
+			
+			if (! res[ifuuid].exists ("address"))
+			{
+				res[ifuuid]["address"] = ln;
+				res[ifuuid]["netmask"] = mask;
 			}
 			
-			while (ln.strlen() && (! P.eof())) ln = P.gets ();
+			bool ispanelip = false;
+			foreach (a, panelips[curif]["ipv4"])
+			{
+				if (a == ipmask)
+				{
+					ispanelip = true;
+					break;
+				}
+			}
+			
+			string ipuuid = "1faceadd-1337-1337-1337-add4%08x" %format (ipmask.key());
+			
+			res[ifuuid]["ipv4"][ipuuid] =
+				$("address", ln) ->
+				$("netmask", mask) ->
+				$("panelip", ispanelip);
 		}
-
-		P.close ();
-		P.serialize ();
-	
-	}
-	catch (...)
-	{
-	}
-	
-	return &iflist;
-}
-
-ipaddress networkingModule::getgateway (void)
-{
-	ipaddress res = 0;
-	string routes = fs.load ("/proc/net/route");
-	value ln = strutil::splitlines (routes);
-	
-	foreach (line, ln)
-	{
-		value v = strutil::splitspace (line);
-		if (v[1] == "00000000")
+		else if (ln.strncmp ("    inet6 "))
 		{
-			res = ntohl ((unsigned int) v[2].sval().toint(16));
+			ln.cropafter ("inet6 ");
+			ln.cropat (" ");
+			statstring ipmask = ln;
+			string mask = "/%s" %format (ln.cutafter ('/'));
+
+			bool ispanelip = false;
+			foreach (a, panelips[curif]["ipv6"])
+			{
+				if (a == ipmask)
+				{
+					ispanelip = true;
+					break;
+				}
+			}
+
+			string ipuuid = "1faceadd-1337-1337-1337-add6%08x" %format (ipmask.key());
+
+			res[ifuuid]["ipv6"][ipuuid] =
+				$("address", ln) ->
+				$("netmask", mask) ->
+				$("panelip", ispanelip);
 		}
 	}
+	P.close ();
+	P.serialize ();
+
+	if (isup)
+	{
+		res[ifkey]["metaid"] = curif;
+	}
 	
-	return res;
+	return &res;
 }
 
-void networkingModule::listobjects (void)
+value *networkingModule::objectlist (const string &classname, const statstring &parentid)
 {
-	value iflist = objectlist ();
+	returnclass (value) res retain;
+
+	value iflist = getInterfaceList ();
+
+	if (classname == "Network:Interface")
+	{
+		foreach (i, iflist)
+		{
+			value &into = res[i["metaid"].sval()];
+			
+			into = $("address", i["address"])->
+			       $("id", i["metaid"])->
+			       $("metaid", i["metaid"])->
+			       $("uuid", i.id()) ->
+			       $("netmask", i["netmask"])->
+			       $("mac", i["mac"])->
+			       $("type", "ethernet");
+		}
+		return &res;
+	}
+	
+	if (classname == "Network:IPv4Address")
+	{
+		if (iflist.exists (parentid))
+		{
+			foreach (a, iflist[parentid]["ipv4"])
+			{
+				res[a.id()] = $("address",a["address"]) ->
+							  $("netmask",a["netmask"]) ->
+							  $("id",a.id()) ->
+							  $("uuid",a.id());
+			}
+		}
+		
+		return &res;
+	}
+
+	if (classname == "Network:IPv6Address")
+	{
+		if (iflist.exists (parentid))
+		{
+			foreach (a, iflist[parentid]["ipv4"])
+			{
+				res[a.id()] = $("address",a["address"]) ->
+							  $("v6netmask",a["netmask"]) ->
+							  $("id",a.id()) ->
+							  $("uuid",a.id());
+			}
+		}
+		
+		return &res;
+	}
+	
+	return &res;
+}
+
+void networkingModule::listobjects (const string &classname, const statstring &parentid)
+{
+	value iflist = objectlist (classname, parentid);
 
 	value out;
 	iflist("type") = "class";
-	out["objects"]["Network:Interface"] = iflist;
+	out["objects"][classname] = iflist;
 	
 	authd.quit ();
 	sendresult (moderr::ok, "OK", out);
@@ -197,7 +345,7 @@ bool networkingModule::readconfiguration (void)
 	if (! f.openread (conf["config"]["system:network"].sval()))
 	{
 		sendresult (moderr::err_module, 
-					"Error opening systems configuration");
+					"Error opening system configuration");
 		return false;
 	}
 	
@@ -231,9 +379,8 @@ bool networkingModule::readconfiguration (void)
 										  "true" : "false";
 	netdata[general]["hostname"] = tmpdata["HOSTNAME"].sval();
 	netdata[general]["forward_ipv4"] = tmpdata["FORWARD_IPV4"].sval();
+	netdata[general]["forward_ipv6"] = tmpdata["FORWARD_IPV6"];
 	
-	netdata[general]["gateway"] = getgateway ();
-
 #elif __FLAVOR_LINUX_DEBIAN // FIXME: this is *not* an ifdef check
 
 	// actualy two config file need to be parsed
@@ -260,6 +407,9 @@ bool networkingModule::readconfiguration (void)
 #endif
 
 
+	netdata[general]["gateway"] = getDefaultGatewayIPv4 ();
+	netdata[general]["v6gateway"] = getDefaultGatewayIPv6 ();
+
 	// Format the data to post back including the right 
 	// parent classes e.a.
 	value retval;
@@ -268,9 +418,6 @@ bool networkingModule::readconfiguration (void)
 	
 	retval["Network"]("type") = "class";
 	retval["Network"]["net"] = netdata[general];
-
-	retval["Network"]["net"]["Network:Interface"] = objectlist ();
-	retval["Network"]["net"]["Network:Interface"]("type") = "class";
 
 	// DEBUG
 	retval["OpenCORE:Result"]["code"] 	= moderr::ok;

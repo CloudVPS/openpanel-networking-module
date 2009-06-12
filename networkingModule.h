@@ -83,9 +83,11 @@ protected:
 	bool 	 completeconfig (value &v);
 	
 	
-	void	 listobjects (void);
-	value	*objectlist (void);
-	ipaddress	getgateway (void);
+	void	 listobjects (const string &, const statstring &);
+	value	*objectlist (const string &, const statstring &);
+	value	*getInterfaceList (void);
+	string	*getDefaultGatewayIPv4 (void);
+	string	*getDefaultGatewayIPv6 (void);
 };
 
 #endif
