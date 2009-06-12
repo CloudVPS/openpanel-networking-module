@@ -256,7 +256,7 @@ value *networkingModule::objectlist (const string &classname, const statstring &
 	{
 		foreach (i, iflist)
 		{
-			value &into = res[i["metaid"].sval()];
+			value &into = res[i.id()];
 			
 			into = $("address", i["address"])->
 			       $("id", i.id())->
