@@ -290,7 +290,7 @@ value *networkingModule::objectlist (const string &classname, const statstring &
 	{
 		if (iflist.exists (parentid))
 		{
-			foreach (a, iflist[parentid]["ipv4"])
+			foreach (a, iflist[parentid]["ipv6"])
 			{
 				res[a.id()] = $("address",a["address"]) ->
 							  $("v6netmask",a["netmask"]) ->
