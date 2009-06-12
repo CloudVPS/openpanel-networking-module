@@ -96,6 +96,9 @@ class Network:IPv4Address		< uuid e07052e7-10a3-454b-962e-28ccd6610983
 								
 								< capabilities
 								
+	string id					: Index
+								< flags
+
 	string address				: Address
 								< regexp [:ipv4:]
 								< gridwidth 80
@@ -113,12 +116,15 @@ class Network:IPv6Address		< uuid 21016b00-9800-4363-8b21-cebaf309c082
 								< indexing manual
 								< dynamic true
 								< worldreadable true
-								< shortname ipaddress
+								< shortname ip6address
 								< title IPv6
 								< description IPv6 address
 								
 								< capabilities
 	
+	string id					: Index
+								< flags
+
 	string address				: Address
 								< regexp [:ipv4:]
 								< gridwidth 80
