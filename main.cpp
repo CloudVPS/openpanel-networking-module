@@ -131,7 +131,8 @@ value *networkingModule::getInterfaceList (void)
 {
 	returnclass (value) res retain;
 	statstring curif;
-	int idx = 0;
+	int idx4 = 0;
+	int idx6 = 0;
 	value panelips;
 	
 	file fips;
@@ -170,7 +171,7 @@ value *networkingModule::getInterfaceList (void)
 			value states = strutil::split (ln, ',');
 			isup = false;
 			foreach (st,states) { if (st == "UP") isup = true; }
-			idx = 0;
+			idx4 = idx6 = 0;
 		}
 		else if (! isup) continue;
 		else if (ln.strncmp ("    link/ether") == 0)
@@ -206,7 +207,7 @@ value *networkingModule::getInterfaceList (void)
 				}
 			}
 			
-			string ipuuid = "%s-%i" %format (curif,idx);
+			string ipuuid = "%s-%i" %format (curif,idx4++);
 			
 			res[curif]["ipv4"][ipuuid] =
 				$("address", ln) ->
@@ -230,15 +231,13 @@ value *networkingModule::getInterfaceList (void)
 				}
 			}
 
-			string ipuuid = "%s-%i" %format (curif,idx);
+			string ipuuid = "%s-%i" %format (curif,idx6++);
 
 			res[curif]["ipv6"][ipuuid] =
 				$("address", ln) ->
 				$("netmask", mask) ->
 				$("panelip", ispanelip);
 		}
-		
-		idx++;
 	}
 	P.close ();
 	P.serialize ();
