@@ -50,7 +50,7 @@ int networkingModule::main (void)
 	//
 	
 	string cmd = data["OpenCORE:Command"];
-	string parentid = data["OpenCORE:Session"]["parentid"];
+	string parentid = data["OpenCORE:Session"]["parentmetaid"];
 	string classid = data["OpenCORE:Session"]["classid"];
 	
 	caseselector (data["OpenCORE:Command"])
@@ -131,8 +131,7 @@ value *networkingModule::getInterfaceList (void)
 {
 	returnclass (value) res retain;
 	statstring curif;
-	unsigned int ifkey;
-	string ifuuid;
+	int idx = 0;
 	value panelips;
 	
 	file fips;
@@ -164,26 +163,21 @@ value *networkingModule::getInterfaceList (void)
 		if (! ln) continue;
 		if (ln[0] != ' ')
 		{
-			if (isup)
-			{
-				res[ifuuid]["metaid"] = curif;
-			}
 			ln.cropafter (": ");
 			curif = ln.cutat (": <");
-			ifkey = curif.key();
-			ifuuid = "1face000-1337-1337-1337-0000%08x" %format (ifkey);
 
 			ln.cropat ('>');
 			value states = strutil::split (ln, ',');
 			isup = false;
 			foreach (st,states) { if (st == "UP") isup = true; }
+			idx = 0;
 		}
 		else if (! isup) continue;
 		else if (ln.strncmp ("    link/ether") == 0)
 		{
 			ln.cropafter ("link/ether ");
 			ln.cropat (" ");
-			res[ifuuid]["mac"] = ln;
+			res[curif]["mac"] = ln;
 		}
 		else if (ln.strncmp ("    link/") == 0)
 		{
@@ -196,10 +190,10 @@ value *networkingModule::getInterfaceList (void)
 			statstring ipmask = ln;
 			string mask = "/%s" %format (ln.cutafter ('/'));
 			
-			if (! res[ifuuid].exists ("address"))
+			if (! res[curif].exists ("address"))
 			{
-				res[ifuuid]["address"] = ln;
-				res[ifuuid]["netmask"] = mask;
+				res[curif]["address"] = ln;
+				res[curif]["netmask"] = mask;
 			}
 			
 			bool ispanelip = false;
@@ -212,9 +206,9 @@ value *networkingModule::getInterfaceList (void)
 				}
 			}
 			
-			string ipuuid = "1faceadd-1337-1337-1337-add4%08x" %format (ipmask.key());
+			string ipuuid = "%s-%i" %format (curif,idx);
 			
-			res[ifuuid]["ipv4"][ipuuid] =
+			res[curif]["ipv4"][ipuuid] =
 				$("address", ln) ->
 				$("netmask", mask) ->
 				$("panelip", ispanelip);
@@ -236,22 +230,19 @@ value *networkingModule::getInterfaceList (void)
 				}
 			}
 
-			string ipuuid = "1faceadd-1337-1337-1337-add6%08x" %format (ipmask.key());
+			string ipuuid = "%s-%i" %format (curif,idx);
 
-			res[ifuuid]["ipv6"][ipuuid] =
+			res[curif]["ipv6"][ipuuid] =
 				$("address", ln) ->
 				$("netmask", mask) ->
 				$("panelip", ispanelip);
 		}
+		
+		idx++;
 	}
 	P.close ();
 	P.serialize ();
 
-	if (isup)
-	{
-		res[ifuuid]["metaid"] = curif;
-	}
-	
 	return &res;
 }
 
@@ -268,9 +259,9 @@ value *networkingModule::objectlist (const string &classname, const statstring &
 			value &into = res[i["metaid"].sval()];
 			
 			into = $("address", i["address"])->
-			       $("id", i["metaid"])->
-			       $("metaid", i["metaid"])->
-			       $("uuid", i.id()) ->
+			       $("id", i.id())->
+			       $("metaid", i.id())->
+			       $("uuid", strutil::uuid()) ->
 			       $("netmask", i["netmask"])->
 			       $("mac", i["mac"])->
 			       $("type", "ethernet");
@@ -287,7 +278,8 @@ value *networkingModule::objectlist (const string &classname, const statstring &
 				res[a.id()] = $("address",a["address"]) ->
 							  $("netmask",a["netmask"]) ->
 							  $("id",a.id()) ->
-							  $("uuid",a.id());
+							  $("metaid",a.id()) ->
+							  $("uuid",strutil::uuidgen());
 			}
 		}
 		
@@ -303,7 +295,8 @@ value *networkingModule::objectlist (const string &classname, const statstring &
 				res[a.id()] = $("address",a["address"]) ->
 							  $("v6netmask",a["netmask"]) ->
 							  $("id",a.id()) ->
-							  $("uuid",a.id());
+							  $("metaid",a.id()) ->
+							  $("uuid",strutil::uuidgen());
 			}
 		}
 		

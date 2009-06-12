@@ -110,15 +110,15 @@ class Network:IPv4Address		< uuid e07052e7-10a3-454b-962e-28ccd6610983
 class Network:IPv6Address		< uuid 21016b00-9800-4363-8b21-cebaf309c082
 								< version 1
 								< requires Network:Interface
-								< indexing auto
+								< indexing manual
 								< dynamic true
 								< worldreadable true
 								< shortname ipaddress
-								< title IPv4
-								< description IPv4 address
+								< title IPv6
+								< description IPv6 address
 								
 								< capabilities
-								
+	
 	string address				: Address
 								< regexp [:ipv4:]
 								< gridwidth 80
