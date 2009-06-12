@@ -279,7 +279,7 @@ value *networkingModule::objectlist (const string &classname, const statstring &
 							  $("netmask",a["netmask"]) ->
 							  $("id",a.id()) ->
 							  $("metaid",a.id()) ->
-							  $("uuid",strutil::uuidgen());
+							  $("uuid",strutil::uuid());
 			}
 		}
 		
@@ -296,7 +296,7 @@ value *networkingModule::objectlist (const string &classname, const statstring &
 							  $("v6netmask",a["netmask"]) ->
 							  $("id",a.id()) ->
 							  $("metaid",a.id()) ->
-							  $("uuid",strutil::uuidgen());
+							  $("uuid",strutil::uuid());
 			}
 		}
 		
