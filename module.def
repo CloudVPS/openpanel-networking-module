@@ -69,12 +69,10 @@ class Network:Interface			< uuid 22cd5f5a-9aec-434a-b568-fc0fdb0ed959
 								< gridwidth 38
 	
 	string address				: IP address
-								< regexp [:ipv4:]
 								< example 10.1.1.2
 								< gridwidth 25
 	
 	enum netmask				: Netmask
-								< regexp [:ipv4:]
 								< default 255.255.255.0
 								< gridwidth 25
 	
