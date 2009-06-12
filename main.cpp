@@ -179,17 +179,17 @@ value *networkingModule::getInterfaceList (void)
 			foreach (st,states) { if (st == "UP") isup = true; }
 		}
 		else if (! isup) continue;
-		else if (ln.strncmp ("    link/ether"))
+		else if (ln.strncmp ("    link/ether") == 0)
 		{
 			ln.cropafter ("link/ether ");
 			ln.cropat (" ");
 			res[ifuuid]["mac"] = ln;
 		}
-		else if (ln.strncmp ("    link/"))
+		else if (ln.strncmp ("    link/") == 0)
 		{
 			isup = false;
 		}
-		else if (ln.strncmp ("    inet "))
+		else if (ln.strncmp ("    inet ") == 0)
 		{
 			ln.cropafter ("inet ");
 			ln.cropat (" ");
@@ -219,7 +219,7 @@ value *networkingModule::getInterfaceList (void)
 				$("netmask", mask) ->
 				$("panelip", ispanelip);
 		}
-		else if (ln.strncmp ("    inet6 "))
+		else if (ln.strncmp ("    inet6 ") == 0)
 		{
 			ln.cropafter ("inet6 ");
 			ln.cropat (" ");
