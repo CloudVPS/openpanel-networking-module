@@ -98,10 +98,11 @@ class Network:IPv4Address		< uuid e07052e7-10a3-454b-962e-28ccd6610983
 								
 	string id					: Index
 								< flags
+								< gridwidth 10
 
 	string address				: Address
 								< regexp [:ipv4:]
-								< gridwidth 80
+								< gridwidth 70
 								< textwidth 18
 								
 	enum netmask				: Mask
@@ -124,10 +125,11 @@ class Network:IPv6Address		< uuid 21016b00-9800-4363-8b21-cebaf309c082
 	
 	string id					: Index
 								< flags
+								< gridwidth 10
 
 	string address				: Address
 								< regexp [:ipv4:]
-								< gridwidth 80
+								< gridwidth 70
 								< textwidth 24
 								
 	enum v6netmask				: Mask
