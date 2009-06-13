@@ -40,7 +40,7 @@ class Network					< uuid 30691f95-78c2-4fa6-a0c7-6a561e426488
 								< example 10.1.1.1
 								
 	string v6gateway			: Gateway IPv6
-								< regexp [:ipv6:]
+								< regexp [:ipv6orempty:]
 								< example 2001:db8::1
 
 
@@ -74,6 +74,7 @@ class Network:Interface			< uuid 22cd5f5a-9aec-434a-b568-fc0fdb0ed959
 	
 	enum netmask				: Netmask
 								< default 255.255.255.0
+								< sameline true
 								< gridwidth 25
 	
 	enum type					: Hardware
@@ -106,6 +107,7 @@ class Network:IPv4Address		< uuid e07052e7-10a3-454b-962e-28ccd6610983
 	enum netmask				: Mask
 								< gridwidth 20
 								< textwidth 5
+								< sameline true
 
 
 # ----------------------------------------------------------------------------
@@ -133,6 +135,7 @@ class Network:IPv6Address		< uuid 21016b00-9800-4363-8b21-cebaf309c082
 	enum v6netmask				: Mask
 								< gridwidth 20
 								< textwidth 5
+								< sameline true
 
 # ============================================================================
 # ENUMS
