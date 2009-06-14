@@ -7,6 +7,9 @@ module Networking				< uuid d16089e4-3966-44c0-8b53-03e3fea129a6
 								< languages en_EN
 								< apitype xml
 								< getconfig true
+								< license GPL2
+								< author OpenPanel V.O.F.
+								< url http://www.openpanel.com/
 
 
 # ============================================================================
@@ -72,7 +75,7 @@ class Network:Interface			< uuid 22cd5f5a-9aec-434a-b568-fc0fdb0ed959
 								< example 10.1.1.2
 								< gridwidth 25
 	
-	enum netmask				: Netmask
+	enum netmask				: Mask
 								< default 255.255.255.0
 								< sameline true
 								< gridwidth 25
