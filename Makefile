@@ -2,9 +2,12 @@ include makeinclude
 
 OBJ	= main.o version.o
 
-all: networkingmodule.exe module.xml
+all: networkingmodule.exe module.xml down_network.png
 	./addflavor.sh
 	mkapp networkingmodule 
+
+down_network.png: network.png
+	convert -modulate 50,100,100 network.png down_network.png
 
 version.cpp:
 	mkversion version.cpp
