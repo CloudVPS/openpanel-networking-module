@@ -59,6 +59,7 @@ class Network:Interface			< uuid 22cd5f5a-9aec-434a-b568-fc0fdb0ed959
 								< title Network Interface
 								< description Network Interface
 								< sortindex 95
+								< gridheight 70
 								
 								< capabilities
 								
