@@ -96,6 +96,7 @@ class Network:IPv4Address		< uuid e07052e7-10a3-454b-962e-28ccd6610983
 								< shortname ipaddress
 								< title IPv4
 								< description IPv4 address
+								< emptytext No IPv4 addresses were configured on this interface.
 								
 								< capabilities
 								
@@ -124,6 +125,7 @@ class Network:IPv6Address		< uuid 21016b00-9800-4363-8b21-cebaf309c082
 								< shortname ip6address
 								< title IPv6
 								< description IPv6 address
+								< emptytext No IPv6 addresses were configured on this interface.
 								
 								< capabilities
 	
