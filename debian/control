@@ -1,0 +1,12 @@
+Source: openpanel-mod-networking
+Section: misc
+Priority: optional
+Maintainer: OpenPanel/Panel6 packager <packages@panelsix.com>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
+
+Package: openpanel-mod-networking
+Architecture: any
+Depends: , openpanel-core (>= 0.8.3)
+Description: Openpanel network configuration module
+ Network management module for openpanel
