@@ -4,13 +4,13 @@ OBJ	= main.o version.o
 
 all: networkingmodule.exe module.xml down_network.png
 	./addflavor.sh
-	mkapp networkingmodule 
+	mgrace kapp networkingmodule 
 
 down_network.png: network.png
 	convert -modulate 50,100,100 network.png down_network.png
 
 version.cpp:
-	mkversion version.cpp
+	grace mkversion version.cpp
 
 module.xml: module.def
 	mkmodulexml < module.def > module.xml
