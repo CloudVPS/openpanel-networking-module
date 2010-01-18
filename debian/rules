@@ -3,17 +3,17 @@
 
 BUILD_ROOT=$(CURDIR)/debian/tmp
 install:
-trm -rf ${BUILD_ROOT}
-tmkdir -p ${BUILD_ROOT}/var/opencore/modules/Networking.module
-tcp -rf ./networkingmodule.app ${BUILD_ROOT}/var/opencore/modules/Networking.module/
-tln -sf networkingmodule.app/exec ${BUILD_ROOT}/var/opencore/modules/Networking.module/action
-tcp module.xml techsupport.* ${BUILD_ROOT}/var/opencore/modules/Networking.module/
-tcp *.png *.html ${BUILD_ROOT}/var/opencore/modules/Networking.module/
-tinstall -m 755 verify ${BUILD_ROOT}/var/opencore/modules/Networking.module/verify
+	rm -rf ${BUILD_ROOT}
+	mkdir -p ${BUILD_ROOT}/var/opencore/modules/Networking.module
+	cp -rf ./networkingmodule.app ${BUILD_ROOT}/var/opencore/modules/Networking.module/
+	ln -sf networkingmodule.app/exec ${BUILD_ROOT}/var/opencore/modules/Networking.module/action
+	cp module.xml techsupport.* ${BUILD_ROOT}/var/opencore/modules/Networking.module/
+	cp *.png *.html ${BUILD_ROOT}/var/opencore/modules/Networking.module/
+	install -m 755 verify ${BUILD_ROOT}/var/opencore/modules/Networking.module/verify
 
 build:
-t./configure
-tmake
+	./configure
+	make
 binary-indep:
 
 binary-arch binary: build install

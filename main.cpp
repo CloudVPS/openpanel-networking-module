@@ -11,7 +11,7 @@
 // website on http://www.openpanel.com/
 // --------------------------------------------------------------------------
 
-#include <moduleapp.h>
+#include <opencore/moduleapp.h>
 #include "networkingModule.h"
 
 #include <grace/file.h>

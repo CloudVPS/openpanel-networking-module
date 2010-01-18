@@ -14,7 +14,7 @@
 #ifndef _networkingModule_H
 #define _networkingModule_H 1
 
-#include <moduleapp.h>
+#include <opencore/moduleapp.h>
 #include <grace/system.h>
 #include <grace/configdb.h>
 

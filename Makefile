@@ -4,7 +4,7 @@ OBJ	= main.o version.o
 
 all: networkingmodule.exe module.xml down_network.png
 	./addflavor.sh
-	mgrace kapp networkingmodule 
+	grace mkapp networkingmodule 
 
 down_network.png: network.png
 	convert -modulate 50,100,100 network.png down_network.png
@@ -17,7 +17,7 @@ module.xml: module.def
 
 networkingmodule.exe: $(OBJ) module.xml
 	$(LD) $(LDFLAGS) -o networkingmodule.exe $(OBJ) $(LIBS) \
-	../opencore/api/c++/lib/libcoremodule.a
+	/usr/lib/opencore/libcoremodule.a
 
 clean:
 	rm -f *.o *.exe
