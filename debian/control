@@ -8,5 +8,5 @@ Standards-Version: 3.7.2
 Package: openpanel-mod-networking
 Architecture: any
 Depends: openpanel-core (>= 0.8.3)
-Description: Openpanel network configuration module
+Description: OpenPanel module to manage networking 
  Network management module for openpanel
