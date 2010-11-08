@@ -1,6 +1,13 @@
+# This file is part of OpenPanel - The Open Source Control Panel
+# OpenPanel is free software: you can redistribute it and/or modify it 
+# under the terms of the GNU General Public License as published by the Free 
+# Software Foundation, using version 3 of the License.
+#
+# Please note that use of the OpenPanel trademark may be subject to additional 
+# restrictions. For more information, please visit the Legal Information 
+# section of the OpenPanel website on http://www.openpanel.com/
 # ============================================================================
 # OpenPanel Networking.module for controlling network settings.
-# Copyright (C) 2008 PanelSix V.O.F.
 # ============================================================================
 module Networking				< uuid d16089e4-3966-44c0-8b53-03e3fea129a6
 								< version 2.0
