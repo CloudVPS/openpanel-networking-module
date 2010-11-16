@@ -1,12 +1,12 @@
 Source: openpanel-mod-networking
 Section: misc
 Priority: optional
-Maintainer: OpenPanel packager <packages@openpanel.com
+Maintainer: OpenPanel packager <packages@openpanel.com>
 Build-Depends: debhelper (>= 5), libgrace-dev, openpanel-dev
 Standards-Version: 3.7.2
 
 Package: openpanel-mod-networking
 Architecture: any
-Depends: openpanel-core (>= 0.8.3)
+Depends: openpanel-core (>= 0.8.3), ${shlibs:Depends}, ${misc:Depends}
 Description: OpenPanel module to manage networking 
  Network management module for openpanel
