@@ -28,9 +28,9 @@ set -e
 
 case "$1" in
     configure)
-mkdir -p /var/opencore/conf/staging/Networking
-chown opencore:authd /var/opencore/conf/staging/Networking
-
+        mkdir -p /var/opencore/conf/staging/Networking
+        chown opencore:authd /var/opencore/conf/staging/Networking
+        invoke-rc.d openpanel-core reload
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
