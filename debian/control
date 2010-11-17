@@ -7,6 +7,7 @@ Standards-Version: 3.7.2
 
 Package: openpanel-mod-networking
 Architecture: any
+Pre-Depends: openpanel-core, openpanel-authd
 Depends: openpanel-core (>= 0.8.3), ${shlibs:Depends}, ${misc:Depends}
 Description: OpenPanel module to manage networking 
  Network management module for openpanel
