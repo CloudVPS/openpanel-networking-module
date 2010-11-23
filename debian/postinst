@@ -28,8 +28,8 @@ set -e
 
 case "$1" in
     configure)
-        mkdir -p /var/opencore/conf/staging/Networking
-        chown opencore:authd /var/opencore/conf/staging/Networking
+        mkdir -p /var/openpanel/conf/staging/Networking
+        chown openpanel-core:openpanel-authd /var/openpanel/conf/staging/Networking
         invoke-rc.d openpanel-core reload
     ;;
 

@@ -26,7 +26,7 @@ module.xml: module.def
 
 networkingmodule.exe: $(OBJ) module.xml
 	$(LD) $(LDFLAGS) -o networkingmodule.exe $(OBJ) $(LIBS) \
-	/usr/lib/opencore/libcoremodule.a
+	/usr/lib/openpanel-core/libcoremodule.a
 
 clean:
 	rm -f *.o *.exe

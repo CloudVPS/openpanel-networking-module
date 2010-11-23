@@ -41,16 +41,16 @@ make
 %install
 BUILD_ROOT=$RPM_BUILD_ROOT
 rm -rf ${BUILD_ROOT}
-mkdir -p ${BUILD_ROOT}/var/opencore/modules/Networking.module
-cp -rf ./networkingmodule.app ${BUILD_ROOT}/var/opencore/modules/Networking.module/
-ln -sf networkingmodule.app/exec ${BUILD_ROOT}/var/opencore/modules/Networking.module/action
-cp module.xml techsupport.* ${BUILD_ROOT}/var/opencore/modules/Networking.module/
-cp *.png *.html ${BUILD_ROOT}/var/opencore/modules/Networking.module/
-install -m 755 verify ${BUILD_ROOT}/var/opencore/modules/Networking.module/verify
+mkdir -p ${BUILD_ROOT}/var/openpanel/modules/Networking.module
+cp -rf ./networkingmodule.app ${BUILD_ROOT}/var/openpanel/modules/Networking.module/
+ln -sf networkingmodule.app/exec ${BUILD_ROOT}/var/openpanel/modules/Networking.module/action
+cp module.xml techsupport.* ${BUILD_ROOT}/var/openpanel/modules/Networking.module/
+cp *.png *.html ${BUILD_ROOT}/var/openpanel/modules/Networking.module/
+install -m 755 verify ${BUILD_ROOT}/var/openpanel/modules/Networking.module/verify
 
 %post
-mkdir -p /var/opencore/conf/staging/Networking
-chown opencore:authd /var/opencore/conf/staging/Networking
+mkdir -p /var/openpanel/conf/staging/Networking
+chown openpanel-core:openpanel-authd /var/openpanel/conf/staging/Networking
 
 %files
 %defattr(-,root,root)

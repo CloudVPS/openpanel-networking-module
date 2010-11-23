@@ -12,7 +12,7 @@
 <openpanel.module.domain>
 
 	<config>
-		<varpath>/var/opencore/conf/staging/Networking/</varpath>
+		<varpath>/var/openpanel/conf/staging/Networking/</varpath>
 		
 		<!-- Path to the system network configuration files -->
 		<system:interfaces>/etc/network/interfaces</system:interfaces>
