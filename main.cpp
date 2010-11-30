@@ -35,16 +35,6 @@ int networkingModule::main (void)
         return 1;
     } 	
  	
- 	
-	
-// DEBUG	
-//	data.loadxml ("test/create.xml");
-	
-	//
-	// Depend the actions which has to 
-	// be executed
-	//
-	
 	string cmd = data["OpenCORE:Command"];
 	string parentid = data["OpenCORE:Session"]["parentmetaid"];
 	string classid = data["OpenCORE:Session"]["classid"];
@@ -296,6 +286,20 @@ value *networkingModule::objectlist (const string &classname, const statstring &
 		}
 		
 		return &res;
+	}
+	
+	string fwd = fs.load ("/proc/sys/net/ipv4/ip_forward");
+	
+	if (classname == "Network")
+	{
+		res["net"] = $("networking", true)->
+					 $("hostname", fs.load ("/etc/hostname"))->
+					 $("forward_ipv4", fwd!="0")->
+					 $("forward_ipv6", fwd!="0")->
+					 $("gateway", getDefaultGatewayIPv4())->
+					 $("v6gateway", getDefaultGatewayIPv6());
+
+		return &res;		
 	}
 	
 	return &res;
