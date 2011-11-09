@@ -67,6 +67,9 @@ class Networking:Interface  < uuid 0506ade6-e8f5-4f82-94fe-2669763f2f91
     string dev_description  : Description
                             < tooltip An illustrative description of the interface
 
+    bool dhcp_enabled       : Use DHCP in this interface
+                            < default false
+
 # ----------------------------------------------------------------------------
 class Networking:Address    < uuid 5c95ab2e-9f33-4a21-9241-1cfad5ba356a
                             < version 1

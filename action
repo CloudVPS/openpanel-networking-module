@@ -66,9 +66,13 @@ Module.update() {
 
     ifaces=( $(coreval --loop Networking Networking:Interface) )
     _getinterfaces | while read interface; do
+        dev_dhcp=$(_getinterfacedhcp ${interface})
         dev_name=$(_getinterfacename ${interface})
         dev_desc=$(_getinterfacedescription ${interface})
         echo -e "iface\t${interface}\t${dev_name}\t${dev_desc}" >> ${DST}
+        if [ "${dev_dhcp}" = "true" ]; then
+            echo -e "dhcp\t${interface}\ttrue" >> ${DST}
+        fi
         _getinterfaceaddresses ${interface} | while read address; do
             addr_desc=$(_getaddressdescription ${interface} ${address})
             addr_address=$(_getaddress ${interface} ${address})

@@ -16,6 +16,7 @@ install:
 	mkdir -p ${BUILD_ROOT}/var/openpanel/modules/Networking.module
 	install -m 755 action ${BUILD_ROOT}/var/openpanel/modules/Networking.module/action
 	cp module.xml ${BUILD_ROOT}/var/openpanel/modules/Networking.module/module.xml
+	cp localfunctions.sh ${BUILD_ROOT}/var/openpanel/modules/Networking.module/localfunctions.sh
 	cp *.png ${BUILD_ROOT}/var/openpanel/modules/Networking.module/
 	install -m 755 verify ${BUILD_ROOT}/var/openpanel/modules/Networking.module/verify
 
