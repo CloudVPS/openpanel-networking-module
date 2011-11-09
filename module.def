@@ -1,0 +1,92 @@
+# This file is part of OpenPanel - The Open Source Control Panel
+# OpenPanel is free software: you can redistribute it and/or modify it 
+# under the terms of the GNU General Public License as published by the Free 
+# Software Foundation, using version 3 of the License.
+#
+# Please note that use of the OpenPanel trademark may be subject to additional 
+# restrictions. For more information, please visit the Legal Information 
+# section of the OpenPanel website on http://www.openpanel.com/
+============================================================================
+# OpenPanel Networking.module for configuring the network
+# ============================================================================
+module Networking           < uuid 3d7b5e33-7844-47a9-9fb4-29ae0e3378bd
+                            < version 1.0
+                            < languages en_EN
+                            < apitype commandline
+                            < getconfig true
+                            < license GPLv3
+                            < author OpenPanel
+                            < url http://www.openpanel.com/
+
+
+# ============================================================================
+# CLASSES
+# ============================================================================
+class Networking            < uuid fb1a8418-9fd3-4ef2-9736-13561077a277
+                            < version 1
+                            < indexing auto
+                            < allchildren true
+                            < uniquein class
+                            < shortname networking
+                            < singleton networking
+                            < title Networking
+                            < description Network settings
+                            < sortindex 10
+                            < icon networking.png
+                            < capabilities update admin
+                            < explanation networking.html
+                            < listview id def_gateway def6_gateway
+                            < required id def_gateway def6_gateway
+
+    string def_gateway      : Default gateway (IPv4)
+                            < example 127.0.0.1
+                            < regexp [:ipv4:]
+
+    string def6_gateway     : Default gateway (IPv6)
+                            < example ::1
+                            < regexp [:ipv6:]
+
+# ----------------------------------------------------------------------------
+class Networking:Interface  < uuid 0506ade6-e8f5-4f82-94fe-2669763f2f91
+                            < version 1
+                            < requires Networking
+                            < allchildren true
+                            < indexing auto
+                            < uniquein parent
+                            < shortname nic
+                            < sortindex 90
+                            < title NIC
+                            < description Network Interface Card
+                            < capabilities update create delete admin
+                            < listview dev_name dev_description
+                            < required id dev_name dev_description
+
+    string dev_name         : Interface name
+                            < flags required
+
+    string dev_description  : Description
+                            < tooltip An illustrative description of the interface
+
+# ----------------------------------------------------------------------------
+class Networking:Address    < uuid 5c95ab2e-9f33-4a21-9241-1cfad5ba356a
+                            < version 1
+                            < requires Networking:Interface
+                            < allchildren true
+                            < indexing auto
+                            < uniquein class
+                            < shortname address
+                            < sortindex 90
+                            < title Address
+                            < description IP Address
+                            < capabilities update create delete admin
+
+    string addr_description : Description
+                            < tooltip An illustrative description of the address
+
+    string address          : IP Address
+                            < regexp [:ip:]
+                            < example 127.0.0.1 / ::1
+
+    string netmask          : CIDR Netmask
+                            < regexp [:numbers:]
+                            < example 24 or 62

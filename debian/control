@@ -1,0 +1,11 @@
+Source: openpanel-mod-networking
+Section: misc
+Priority: optional
+Maintainer: OpenPanel packager <packages@openpanel.com>
+Build-Depends: debhelper (>= 5), openpanel-dev
+Standards-Version: 3.7.2
+
+Package: openpanel-mod-networking
+Architecture: all
+Description: Configure your networking settings from OpenPanel
+ This will enable you to configure your networking settings

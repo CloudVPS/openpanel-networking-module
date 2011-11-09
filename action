@@ -1,0 +1,95 @@
+#!/bin/bash
+. /var/openpanel/api/sh/module.sh
+
+Module.getconfig() {
+    GATEWAY=$(ip ro list | grep default | cut -f 3 -d ' ')
+    V6_GATEWAY=$(ip -6 ro list | grep default | cut -f 3 -d ' ')
+    INTERFACES=$(cat /proc/net/dev | grep : | cut -f 1 -d: | sed -e 's/ //g')
+
+    cat << _EOF_
+<openpanel.module>
+  <dict id="Networking" type="class">
+    <dict id="networking" type="object">
+      <string id="def_gateway">${GATEWAY}</string>
+      <string id="def6_gateway">${V6_GATEWAY}</string>
+      <dict id="Networking:Interface" type="class">
+_EOF_
+for IFACE in ${INTERFACES}; do
+    ADDRESSES=$(ip addr list dev ${IFACE} scope global | grep inet | awk ' { print $2 } ')
+    cat <<_EOF_
+        <dict id="${IFACE}" type="object">
+          <string id="dev_name">${IFACE}</string>
+          <dict id="Networking:Address" type="class">
+_EOF_
+    for ADDRESS in ${ADDRESSES}; do
+        ADDR=$(echo ${ADDRESS} | cut -f1 -d/)
+        NMSK=$(echo ${ADDRESS} | cut -f2 -d/)
+        cat <<_EOF_
+            <dict id="${ADDRESS}" type="object">
+              <string id="address">${ADDR}</string>
+              <string id="netmask">${NMSK}</string>
+            </dict>
+_EOF_
+    done
+    cat <<_EOF_
+          </dict>
+        </dict>
+_EOF_
+done
+    cat << _EOF_
+      </dict>
+    </dict>
+  </dict>
+  <dict id="OpenCORE:Result">
+    <integer id="error">0</integer>
+    <string id="message">OK</string>
+  </dict>
+</openpanel.module>
+_EOF_
+    exitquiet
+}
+
+Module.update() {
+    echo "UPDATE $*" > /tmp/networking.update
+    env >> /tmp/networking.update
+}
+
+Module.delete() {
+    Module.update
+}
+
+Networking:Interface.create() {
+    Networking:Interface.update
+}
+
+Networking:Interface.update() {
+    dev=$(coreval Networking:Interface dev_name)
+
+    grep -q "^\s\+${dev}:" /proc/net/dev || exiterror "It is currently only possible to add existing interfaces"
+
+    Module.update
+    exitquiet
+}
+
+Networking:Address.create() {
+    Networking:Address.update
+}
+
+Networking:Address.update() {
+    address=$(coreval Networking:Address address)
+    netmask=$(coreval Networking:Address netmask)
+
+    V6="false"
+    echo ${address} | grep -q : && V6="true"
+
+    if [ "$V6" = "false" ]; then
+        [ $netmask -gt 32 ] && exiterror "Invalid value for netmask for an IPv4 address"
+    fi
+
+    Module.update
+
+    exitquiet
+}
+
+implement Networking.module
+
