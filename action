@@ -1,5 +1,6 @@
 #!/bin/bash
 . /var/openpanel/api/sh/module.sh
+. /var/openpanel/modules/Networking.module/localfunctions.sh
 
 Module.getconfig() {
     GATEWAY=$(ip ro list | grep default | cut -f 3 -d ' ')
@@ -16,16 +17,18 @@ Module.getconfig() {
 _EOF_
 for IFACE in ${INTERFACES}; do
     ADDRESSES=$(ip addr list dev ${IFACE} scope global | grep inet | awk ' { print $2 } ')
+    UUID=$(/usr/bin/uuidgen)
     cat <<_EOF_
-        <dict id="${IFACE}" type="object">
+        <dict id="${UUID}" type="object">
           <string id="dev_name">${IFACE}</string>
           <dict id="Networking:Address" type="class">
 _EOF_
     for ADDRESS in ${ADDRESSES}; do
         ADDR=$(echo ${ADDRESS} | cut -f1 -d/)
         NMSK=$(echo ${ADDRESS} | cut -f2 -d/)
+        UUID=$(/usr/bin/uuidgen)
         cat <<_EOF_
-            <dict id="${ADDRESS}" type="object">
+            <dict id="${UUID}" type="object">
               <string id="address">${ADDR}</string>
               <string id="netmask">${NMSK}</string>
             </dict>
@@ -50,8 +53,31 @@ _EOF_
 }
 
 Module.update() {
-    echo "UPDATE $*" > /tmp/networking.update
-    env >> /tmp/networking.update
+    DST="networking.def"
+    # Gateways
+    :>${DST}
+    
+    networking_id=$(coreval Networking uuid)
+    v4_gateway=$(coreval Networking def_gateway)
+    v6_gateway=$(coreval Networking def6_gateway)
+
+    echo -e "gw4\t${networking_id}\t${v4_gateway}" >> ${DST}
+    echo -e "gw6\t${networking_id}\t${v6_gateway}" >> ${DST}
+
+    ifaces=( $(coreval --loop Networking Networking:Interface) )
+    _getinterfaces | while read interface; do
+        dev_name=$(_getinterfacename ${interface})
+        dev_desc=$(_getinterfacedescription ${interface})
+        echo -e "iface\t${interface}\t${dev_name}\t${dev_desc}" >> ${DST}
+        _getinterfaceaddresses ${interface} | while read address; do
+            addr_desc=$(_getaddressdescription ${interface} ${address})
+            addr_address=$(_getaddress ${interface} ${address})
+            addr_netmask=$(_getaddressnetmask ${interface} ${address})
+            echo -e "addr\t${address}\t${interface}\t${addr_address}\t${addr_netmask}\t${dev_name}\t${addr_desc}" >> ${DST}
+        done
+    done
+
+    authd installfile ${DST} /etc/openpanel/
 }
 
 Module.delete() {
@@ -65,7 +91,7 @@ Networking:Interface.create() {
 Networking:Interface.update() {
     dev=$(coreval Networking:Interface dev_name)
 
-    grep -q "^\s\+${dev}:" /proc/net/dev || exiterror "It is currently only possible to add existing interfaces"
+    egrep -q "^ +${dev}:" /proc/net/dev || exiterror "It is currently only possible to add existing interfaces"
 
     Module.update
     exitquiet

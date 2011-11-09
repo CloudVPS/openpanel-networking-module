@@ -90,3 +90,12 @@ class Networking:Address    < uuid 5c95ab2e-9f33-4a21-9241-1cfad5ba356a
     string netmask          : CIDR Netmask
                             < regexp [:numbers:]
                             < example 24 or 62
+
+# ============================================================================
+# AUTHD
+# ============================================================================
+authd fileops
+	match *.def             : /etc/openpanel
+                            < user root
+                            < group root
+                            < perms 0644
