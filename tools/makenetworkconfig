@@ -8,32 +8,24 @@ f = open('/etc/openpanel/networking.def')
 for line in f:
     fields = line.rstrip().split("\t")
 
-    if fields[0] == "gw4":
+    cmd = fields[0]
+    uuid = fields[1]
+
+    if cmd == "gw4":
         gateways['gw4'] = fields[2]
-        continue
-
-    if fields[0] == "gw6":
+    elif cmd == "gw6":
         gateways['gw6'] = fields[2]
-        continue
-
-    if fields[0] == "iface":
-        interfaces[fields[1]] = {}
-        interfaces[fields[1]]['device'] = fields[2]
-        interfaces[fields[1]]['description'] = fields[3]
-        interfaces[fields[1]]['enabled'] = fields[4]
-        continue
-
-    if fields[0] == "dhcp":
-        interfaces[fields[1]]['dhcp'] = fields[2]
-        continue
-
-    if fields[0] == "addr":
+    elif cmd == "iface":
+        interfaces[uuid] = dict(device=fields[2], description=fields[3], enabled=fields[4])
+    elif cmd == "dhcp":
+        interfaces[uuid]['dhcp'] = fields[2]
+    elif cmd == "addr":
         if fields[3] == "127.0.0.1" or fields[3] == "::1":
             continue
         addr = {}
-        addr[fields[1]] = {}
-        addr[fields[1]]['address'] = fields[3]
-        addr[fields[1]]['netmask'] = fields[4]
+        addr[uuid] = {}
+        addr[uuid]['address'] = fields[3]
+        addr[uuid]['netmask'] = fields[4]
 
         addr_net = IPNetwork(fields[3]+'/'+fields[4])
         ipversion = str(addr_net.version)
@@ -43,8 +35,8 @@ for line in f:
             if gw_ip.version != addr_net.version:
                 continue
             if (gw_ip == addr_net.network) or ((gw_ip >= addr_net.network) and (gw_ip < addr_net.broadcast)):
-                addr[fields[1]]['gateway'] = gateways[gw]
-                interfaces[fields[2]]['gwaddr'+ipversion] = fields[1]
+                addr[uuid]['gateway'] = gateways[gw]
+                interfaces[fields[2]]['gwaddr'+ipversion] = uuid
                 del gateways[gw]
 
         interfaces[fields[2]]['has'+ipversion] = "true"
@@ -107,7 +99,7 @@ for i in interfaces:
                         del sn['addresses'][addr_id]
 
     for x in sn['addresses']:
-        addr = x.values().pop()
+        addr = x.values()[-1]
         print "\tpost-up /sbin/ip address add "+addr['address']+"/"+addr['netmask']+" dev "+sn['device']
 
 
