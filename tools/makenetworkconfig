@@ -31,6 +31,9 @@ for line in f:
         addr_net = IPNetwork(fields[3]+'/'+fields[4])
         ipversion = str(addr_net.version)
 
+        if ipversion == "4":
+            addr[uuid]['longmask'] = str(addr_net.netmask)
+
         for gw in list(gateways):
             gw_ip = IPAddress(gateways[gw])
             if gw_ip.version != addr_net.version:
@@ -77,7 +80,7 @@ for i in interfaces:
                     if x.has_key(sn['gwaddr4']):
                         print "iface "+sn['device']+" inet static"
                         print "\taddress "+x[sn['gwaddr4']]['address']
-                        print "\taddress "+x[sn['gwaddr4']]['netmask']
+                        print "\tnetmask "+x[sn['gwaddr4']]['longmask']
                         print "\tgateway "+x[sn['gwaddr4']]['gateway']
                         del sn['addresses'][addr_id]
 
@@ -88,11 +91,11 @@ for i in interfaces:
                     if x.has_key(sn['gwaddr6']):
                         print "iface "+sn['device']+" inet6 static"
                         print "\taddress "+x[sn['gwaddr6']]['address']
-                        print "\taddress "+x[sn['gwaddr6']]['netmask']
+                        print "\tnetmask "+x[sn['gwaddr6']]['netmask']
                         print "\tgateway "+x[sn['gwaddr6']]['gateway']
                         del sn['addresses'][addr_id]
 
-    for x in sn['addresses']:
+    for x in sn.get('addresses', []):
         addr = x.values()[-1]
         print "\tpost-up /sbin/ip address add %s/%s dev %s" % \
             (addr['address'], addr['netmask'], sn['device'])

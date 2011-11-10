@@ -21,7 +21,7 @@ Module.getconfig() {
       <string id="def6_gateway">${V6_GATEWAY}</string>
       <string id="pri_ns">${PRI_NS}</string>
       <string id="sec_ns">${SEC_NS}</string>
-      <string id="search_dom ">${SEARCHDOM}</string>
+      <string id="search_dom">${SEARCHDOM}</string>
       <dict id="Networking:Interface" type="class">
 _EOF_
 for IFACE in ${INTERFACES}; do
@@ -82,8 +82,8 @@ Module.update() {
     sec_ns=$(coreval Networking sec_ns)
     search_dom=$(coreval Networking search_dom)
 
-    echo -e "gw4\t${networking_id}\t${v4_gateway}" >> ${DST}
-    echo -e "gw6\t${networking_id}\t${v6_gateway}" >> ${DST}
+    [ ! -z ${v4_gateway} ] && echo -e "gw4\t${networking_id}\t${v4_gateway}" >> ${DST}
+    [ ! -z ${v6_gateway} ] && echo -e "gw6\t${networking_id}\t${v6_gateway}" >> ${DST}
 
     ifaces=( $(coreval --loop Networking Networking:Interface) )
     _getinterfaces | while read interface; do
@@ -110,9 +110,12 @@ Module.update() {
 
     authd installfile ${DST} /etc/openpanel/ || exiterror "There was a problem installing /etc/openpanel/${DST}"
     authd installfile resolv.conf /etc/ || exiterror "There was a problem installing /etc/resolv.conf"
-    /var/openpanel/tools/makenetworkconfig > interfaces || exiterror "Could not create new interfaces file"
+    /var/openpanel/tools/makenetworkconfig  > interfaces || exiterror "Could not create new interfaces file"
     authd stopservice networking || exiterror "Could not stop networking"
-    authd installfile interfaces /etc/network/ || exiterror "Could not install /etc/network/interfaces"
+    authd installfile interfaces /etc/network/ || {
+        authd startservice networking
+        exiterror "Could not install /etc/network/interfaces"
+    }
     authd startservice networking || exiterror "Could not start networking with new settings"
     HEAD -d http://www.google.com/ > /dev/null || exiterror "Can not reach the internet (www.google.com) with new settings"
 
@@ -124,8 +127,8 @@ Module.delete() {
     Module.update
 }
 
-Networking:Interface.create() {
-    Networking:Interface.update
+Module.create() {
+    Module.update
 }
 
 Networking:Interface.update() {
@@ -135,10 +138,6 @@ Networking:Interface.update() {
 
     Module.update
     exitquiet
-}
-
-Networking:Address.create() {
-    Networking:Address.update
 }
 
 Networking:Address.update() {
