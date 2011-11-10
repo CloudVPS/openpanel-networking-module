@@ -7,12 +7,21 @@ Module.getconfig() {
     V6_GATEWAY=$(ip -6 ro list | grep default | cut -f 3 -d ' ')
     INTERFACES=$(cat /proc/net/dev | grep : | cut -f 1 -d: | sed -e 's/ //g')
 
+    PRI_NS=$(grep ^nameserver /etc/resolv.conf | head -1 | awk ' { print $2 } ')
+    SEC_NS=$(grep ^nameserver /etc/resolv.conf | head -2 | tail -1 | awk ' { print $2 } ')
+    SEARCHDOM=$(grep ^domain  /etc/resolv.conf | head -1 | awk ' { print $2 } ')
+
+    [ "${PRI_NS}" = "${SEC_NS}" ] && SEC_NS=""
+
     cat << _EOF_
 <openpanel.module>
   <dict id="Networking" type="class">
     <dict id="networking" type="object">
       <string id="def_gateway">${GATEWAY}</string>
       <string id="def6_gateway">${V6_GATEWAY}</string>
+      <string id="pri_ns">${PRI_NS}</string>
+      <string id="sec_ns">${SEC_NS}</string>
+      <string id="search_dom ">${SEARCHDOM}</string>
       <dict id="Networking:Interface" type="class">
 _EOF_
 for IFACE in ${INTERFACES}; do
@@ -69,6 +78,9 @@ Module.update() {
     networking_id=$(coreval Networking uuid)
     v4_gateway=$(coreval Networking def_gateway)
     v6_gateway=$(coreval Networking def6_gateway)
+    pri_ns=$(coreval Networking pri_ns)
+    sec_ns=$(coreval Networking sec_ns)
+    search_dom=$(coreval Networking search_dom)
 
     echo -e "gw4\t${networking_id}\t${v4_gateway}" >> ${DST}
     echo -e "gw6\t${networking_id}\t${v6_gateway}" >> ${DST}
@@ -91,7 +103,18 @@ Module.update() {
         done
     done
 
-    authd installfile ${DST} /etc/openpanel/
+    :> resolv.conf
+    [ ! -z ${search_dom} ] && echo "domain ${search_dom}" > resolv.conf
+    [ ! -z ${pri_ns} ]     && echo "nameserver ${pri_ns}" >> resolv.conf
+    [ ! -z ${sec_ns} ]     && echo "nameserver ${sec_ns}" >> resolv.conf
+
+    authd installfile ${DST} /etc/openpanel/ || exiterror "There was a problem installing /etc/openpanel/${DST}"
+    authd installfile resolv.conf /etc/ || exiterror "There was a problem installing /etc/resolv.conf"
+    /var/openpanel/tools/makenetworkconfig > interfaces || exiterror "Could not create new interfaces file"
+    authd stopservice networking || exiterror "Could not stop networking"
+    authd installfile interfaces /etc/network/ || exiterror "Could not install /etc/network/interfaces"
+    authd startservice networking || exiterror "Could not start networking with new settings"
+    HEAD -d http://www.google.com/ > /dev/null || exiterror "Can not reach the internet (www.google.com) with new settings"
 
     exitok
 

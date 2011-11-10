@@ -36,7 +36,7 @@ class Networking            < uuid fb1a8418-9fd3-4ef2-9736-13561077a277
                             < capabilities update admin
                             < explanation networking.html
                             < listview id def_gateway def6_gateway
-                            < required id def_gateway
+                            < required id def_gateway pri_ns
 
     string def_gateway      : Default gateway (IPv4)
                             < example 127.0.0.1
@@ -45,6 +45,15 @@ class Networking            < uuid fb1a8418-9fd3-4ef2-9736-13561077a277
     string def6_gateway     : Default gateway (IPv6)
                             < example ::1
                             < regexp [:ipv6:]
+
+    string pri_ns           : Primary nameserver
+                            < example 8.8.8.8
+
+    string sec_ns           : Secondary nameserver
+                            < example 8.8.8.8
+
+    string search_dom       : Search domains
+                            < yourdomain.com
 
 # ----------------------------------------------------------------------------
 class Networking:Interface  < uuid 0506ade6-e8f5-4f82-94fe-2669763f2f91
@@ -102,7 +111,18 @@ class Networking:Address    < uuid 5c95ab2e-9f33-4a21-9241-1cfad5ba356a
 # AUTHD
 # ============================================================================
 authd fileops
+    match interfaces        : /etc/network
+                            < user root
+                            < group root
+                            < perms 0644
 	match *.def             : /etc/openpanel
                             < user root
                             < group root
                             < perms 0644
+	match *.conf            : /etc
+                            < user root
+                            < group root
+                            < perms 0644
+
+authd services
+    service networking

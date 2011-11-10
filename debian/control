@@ -7,6 +7,6 @@ Standards-Version: 3.7.2
 
 Package: openpanel-mod-networking
 Architecture: all
-Depends: uuid-runtime
+Depends: uuid-runtime, libwww-perl, python-ipaddr
 Description: Configure your networking settings from OpenPanel
  This will enable you to configure your networking settings
