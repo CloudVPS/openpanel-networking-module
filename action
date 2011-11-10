@@ -18,9 +18,18 @@ _EOF_
 for IFACE in ${INTERFACES}; do
     ADDRESSES=$(ip addr list dev ${IFACE} scope global | grep inet | awk ' { print $2 } ')
     UUID=$(/usr/bin/uuidgen)
+    ENABLED="false"
+    ip link show dev ${IFACE} | grep -q 'state UP' && ENABLED="true"
+
+    if [ "${IFACE}" = "lo" ]; then
+        ENABLED="true"
+        ADDRESSES="127.0.0.1/8 ::1/128"
+    fi
+
     cat <<_EOF_
         <dict id="${UUID}" type="object">
           <string id="dev_name">${IFACE}</string>
+          <string id="dev_enabled">${ENABLED}</string>
           <dict id="Networking:Address" type="class">
 _EOF_
     for ADDRESS in ${ADDRESSES}; do
@@ -67,9 +76,10 @@ Module.update() {
     ifaces=( $(coreval --loop Networking Networking:Interface) )
     _getinterfaces | while read interface; do
         dev_dhcp=$(_getinterfacedhcp ${interface})
+        dev_enabled=$(_getinterfaceenabled ${interface})
         dev_name=$(_getinterfacename ${interface})
         dev_desc=$(_getinterfacedescription ${interface})
-        echo -e "iface\t${interface}\t${dev_name}\t${dev_desc}" >> ${DST}
+        echo -e "iface\t${interface}\t${dev_name}\t${dev_desc}\t${dev_enabled}" >> ${DST}
         if [ "${dev_dhcp}" = "true" ]; then
             echo -e "dhcp\t${interface}\ttrue" >> ${DST}
         fi
@@ -82,6 +92,9 @@ Module.update() {
     done
 
     authd installfile ${DST} /etc/openpanel/
+
+    exitok
+
 }
 
 Module.delete() {

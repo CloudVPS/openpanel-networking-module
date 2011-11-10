@@ -36,7 +36,7 @@ class Networking            < uuid fb1a8418-9fd3-4ef2-9736-13561077a277
                             < capabilities update admin
                             < explanation networking.html
                             < listview id def_gateway def6_gateway
-                            < required id def_gateway def6_gateway
+                            < required id def_gateway
 
     string def_gateway      : Default gateway (IPv4)
                             < example 127.0.0.1
@@ -59,15 +59,17 @@ class Networking:Interface  < uuid 0506ade6-e8f5-4f82-94fe-2669763f2f91
                             < description Network Interface Card
                             < capabilities update create delete admin
                             < listview dev_name dev_description
-                            < required id dev_name dev_description
+                            < required id dev_name
 
     string dev_name         : Interface name
-                            < flags required
+
+    bool dev_enabled        : Enable device
+                            < default true
 
     string dev_description  : Description
                             < tooltip An illustrative description of the interface
 
-    bool dhcp_enabled       : Use DHCP in this interface
+    bool dhcp_enabled       : Use DHCP on this interface
                             < default false
 
 # ----------------------------------------------------------------------------
@@ -82,6 +84,8 @@ class Networking:Address    < uuid 5c95ab2e-9f33-4a21-9241-1cfad5ba356a
                             < title Address
                             < description IP Address
                             < capabilities update create delete admin
+                            < listview addr_description address netmask
+                            < required address netmask
 
     string addr_description : Description
                             < tooltip An illustrative description of the address

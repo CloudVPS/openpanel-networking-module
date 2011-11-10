@@ -9,6 +9,12 @@ _getinterfaceaddresses() {
     echo "${addresses}"
 }
 
+_getinterfaceenabled() {
+    iface=$1
+    enabled=$(coreval Networking Networking:Interface ${iface} dev_enabled)
+    echo "${enabled}"
+}
+
 _getinterfacedhcp() {
     iface=$1
     dhcp=$(coreval Networking Networking:Interface ${iface} dhcp_enabled)
