@@ -6,7 +6,7 @@ from ipaddr import IPNetwork, IPAddress
 interfaces = {}
 gateways   = {}
 
-f = open('/etc/openpanel/networking.def')
+f = open('networking.def')
 for line in f:
     fields = line.rstrip().split("\t")
 
@@ -33,6 +33,8 @@ for line in f:
 
         if ipversion == "4":
             addr[uuid]['longmask'] = str(addr_net.netmask)
+
+        addr[uuid]['type'] = ipversion
 
         for gw in list(gateways):
             gw_ip = IPAddress(gateways[gw])
@@ -83,6 +85,16 @@ for i in interfaces:
                         print "\tnetmask "+x[sn['gwaddr4']]['longmask']
                         print "\tgateway "+x[sn['gwaddr4']]['gateway']
                         del sn['addresses'][addr_id]
+            else:
+                for x in sn.get('addresses', []):
+                    addr = x.values()[-1]
+                    if addr['type'] == "6":
+                        continue
+                    addr_id = sn['addresses'].index(x)
+                    print "iface "+sn['device']+" inet static"
+                    print "\taddress "+addr['address']
+                    print "\tnetmask "+addr['longmask']
+                    del sn['addresses'][addr_id]
 
         if sn.has_key('has6'):
             if sn.has_key('gwaddr6'):
@@ -94,6 +106,16 @@ for i in interfaces:
                         print "\tnetmask "+x[sn['gwaddr6']]['netmask']
                         print "\tgateway "+x[sn['gwaddr6']]['gateway']
                         del sn['addresses'][addr_id]
+            else:
+                for x in sn.get('addresses', []):
+                    addr = x.values()[-1]
+                    if addr['type'] == "4":
+                        continue
+                    addr_id = sn['addresses'].index(x)
+                    print "iface "+sn['device']+" inet6 static"
+                    print "\taddress "+addr['address']
+                    print "\tnetmask "+addr['netmask']
+                    del sn['addresses'][addr_id]
 
     for x in sn.get('addresses', []):
         addr = x.values()[-1]

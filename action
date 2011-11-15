@@ -95,7 +95,7 @@ Module.update() {
         if [ "${dev_dhcp}" = "true" ]; then
             echo -e "dhcp\t${interface}\ttrue" >> ${DST}
         fi
-        _getinterfaceaddresses ${interface} | while read address; do
+        for address in `_getinterfaceaddresses ${interface}`; do
             addr_desc=$(_getaddressdescription ${interface} ${address})
             addr_address=$(_getaddress ${interface} ${address})
             addr_netmask=$(_getaddressnetmask ${interface} ${address})
@@ -110,17 +110,25 @@ Module.update() {
 
     authd installfile ${DST} /etc/openpanel/ || exiterror "There was a problem installing /etc/openpanel/${DST}"
     authd installfile resolv.conf /etc/ || exiterror "There was a problem installing /etc/resolv.conf"
+    cp /etc/network/interfaces interfaces.orig
     /var/openpanel/tools/makenetworkconfig  > interfaces || exiterror "Could not create new interfaces file"
+    # Only restart stuff if the interfacesfiles differ
+    diff -q interfaces.orig interfaces && exitok
     authd stopservice networking || exiterror "Could not stop networking"
-    authd installfile interfaces /etc/network/ || {
-        authd startservice networking
-        exiterror "Could not install /etc/network/interfaces"
-    }
-    authd startservice networking || exiterror "Could not start networking with new settings"
-    HEAD -d http://www.google.com/ > /dev/null || exiterror "Can not reach the internet (www.google.com) with new settings"
+    authd installfile interfaces /etc/network/
+    authd startservice networking || rollback_network
+    HEAD -d http://www.google.com/ > /dev/null || rollback_network
 
     exitok
 
+}
+
+rollback_network() {
+    mv interfaces.orig interfaces
+    authd installfile interfaces /etc/network/
+    authd stopservice networking
+    authd startservice networking
+    exiterror "Can not reach the internet (www.google.com) with new settings"
 }
 
 Module.delete() {
