@@ -2,11 +2,11 @@ Source: openpanel-mod-networking
 Section: misc
 Priority: optional
 Maintainer: OpenPanel packager <packages@openpanel.com>
-Build-Depends: debhelper (>= 5), openpanel-dev
+Build-Depends: debhelper (>= 5), openpanel-dev, imagemagick
 Standards-Version: 3.7.2
 
 Package: openpanel-mod-networking
 Architecture: all
-Depends: uuid-runtime, libwww-perl, python-ipaddr
+Depends: uuid-runtime, libwww-perl, python-ipaddr, openpanel-core, openpanel-api-sh
 Description: Configure your networking settings from OpenPanel
  This will enable you to configure your networking settings
