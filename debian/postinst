@@ -28,6 +28,14 @@ set -e
 
 case "$1" in
     configure)
+        if [ -f /etc/network/interfaces ]; then
+            # Check if interfacesfile has the `i' attribute. Delete it if it
+            # exists
+           lsattr /etc/network/interfaces | cut -f 1 -d ' ' |grep -q i && {
+               echo "Removing i-attribute on /etc/network/interfaces"
+               chattr -i /etc/network/interfaces
+           }
+        fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
