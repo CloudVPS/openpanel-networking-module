@@ -126,3 +126,7 @@ authd fileops
 
 authd services
     service networking
+
+authd scripts
+    script upnetwork
+    script downnetwork
