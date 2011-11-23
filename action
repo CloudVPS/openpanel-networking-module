@@ -114,9 +114,9 @@ Module.update() {
     /var/openpanel/tools/makenetworkconfig  > interfaces || exiterror "Could not create new interfaces file"
     # Only restart stuff if the interfacesfiles differ
     diff -q interfaces.orig interfaces && exitok
-    authd stopservice networking || exiterror "Could not stop networking"
+    authd runscript downnetwork
     authd installfile interfaces /etc/network/
-    authd startservice networking || rollback_network
+    authd runscript upnetwork
     HEAD -d http://www.google.com/ > /dev/null || rollback_network
 
     exitok
@@ -126,8 +126,8 @@ Module.update() {
 rollback_network() {
     mv interfaces.orig interfaces
     authd installfile interfaces /etc/network/
-    authd stopservice networking
-    authd startservice networking
+    authd runscript downnetwork
+    authd runscript upnetwork
     exiterror "Can not reach the internet (www.google.com) with new settings"
 }
 

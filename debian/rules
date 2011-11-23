@@ -21,6 +21,8 @@ install:
 	install -m 755 verify ${BUILD_ROOT}/var/openpanel/modules/Networking.module/verify
 	mkdir -p ${BUILD_ROOT}/var/openpanel/tools/
 	install -m 755 tools/makenetworkconfig ${BUILD_ROOT}/var/openpanel/tools/makenetworkconfig
+	install -m 755 tools/upnetwork ${BUILD_ROOT}/var/openpanel/tools/upnetwork
+	install -m 755 tools/downnetwork ${BUILD_ROOT}/var/openpanel/tools/downnetwork
 
 build:
 	mkmodulexml < module.def > module.xml
