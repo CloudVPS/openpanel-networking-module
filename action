@@ -108,8 +108,6 @@ Module.update() {
     [ ! -z ${pri_ns} ]     && echo "nameserver ${pri_ns}" >> resolv.conf
     [ ! -z ${sec_ns} ]     && echo "nameserver ${sec_ns}" >> resolv.conf
 
-    authd installfile ${DST} /etc/openpanel/ || exiterror "There was a problem installing /etc/openpanel/${DST}"
-    authd installfile resolv.conf /etc/ || exiterror "There was a problem installing /etc/resolv.conf"
     RESULT=$(authd runscript commitnetworkconfig) || exiterror "${RESULT}"
 
     exitok

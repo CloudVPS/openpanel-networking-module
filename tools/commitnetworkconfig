@@ -1,7 +1,9 @@
 #!/bin/bash
 
+RECONFIGURE="true"
+
 fatal() {
-    echo $1
+    echo -n "$1"
     exit 1
 }
 
@@ -10,9 +12,12 @@ exitok() {
 }
 
 rollback_network() {
-    /var/openpanel/tools/downnetwork
-    cp interfaces.orig /etc/network/interfaces
-    /var/openpanel/tools/upnetwork
+    if [ "${RECONFIGURE}" = "true" ]; then
+        /var/openpanel/tools/downnetwork
+        cp interfaces.orig /etc/network/interfaces
+        /var/openpanel/tools/upnetwork
+    fi
+    cp resolv.conf.orig /etc/resolv.conf
     fatal "Can not reach the internet (www.google.com) with new settings"
 }
 
@@ -20,24 +25,31 @@ ST_DIR=/var/openpanel/conf/staging/Networking
 
 cd ${ST_DIR}
 
-# Create a backup of the working interfaces file
+# Create backups
 cp /etc/network/interfaces interfaces.orig || fatal "Could not create a backup of the current interfacesfile"
+cp /etc/resolv.conf resolv.conf.orig || fatal "Could not create a backup of the current resolv.conf"
 
 # Create the new interfacesfile
 /var/openpanel/tools/makenetworkconfig  > interfaces || fatal "Could not create new interfacesfile"
 
 # Check if the new interfacesfile differs from the old one
-diff -q interfaces.orig interfaces && exitok
+diff -q interfaces.orig interfaces > /dev/null 2>&1  && RECONFIGURE="false"
 
-# Deconfigure the current networkingsettings
-/var/openpanel/tools/downnetwork
+if [ "${RECONFIGURE}" = "true" ]; then
+	# Deconfigure the current networkingsettings
+	/var/openpanel/tools/downnetwork
+	
+	# Place the new interfacesfile
+	cp interfaces /etc/network/interfaces || fatal "Could not install the new interfacesfile"
+	
+	# Configure the new networkingsettings
+	/var/openpanel/tools/upnetwork
+fi
 
-# Place the new interfacesfile
-cp interfaces /etc/network/interfaces || fatal "Could not install the new interfacesfile"
-
-# Configure the new networkingsettings
-/var/openpanel/tools/upnetwork
+cp resolv.conf /etc/resolv.conf
 
 # Test if the new settings seem to work
-HEAD -d http://www.google.com/ > /dev/null || rollback_network
+HEAD -t5s -d http://www.google.com/ > /dev/null || rollback_network
+
+cp networking.def /etc/openpanel/networking.def
 
