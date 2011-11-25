@@ -110,25 +110,10 @@ Module.update() {
 
     authd installfile ${DST} /etc/openpanel/ || exiterror "There was a problem installing /etc/openpanel/${DST}"
     authd installfile resolv.conf /etc/ || exiterror "There was a problem installing /etc/resolv.conf"
-    cp /etc/network/interfaces interfaces.orig
-    /var/openpanel/tools/makenetworkconfig  > interfaces || exiterror "Could not create new interfaces file"
-    # Only restart stuff if the interfacesfiles differ
-    diff -q interfaces.orig interfaces && exitok
-    authd runscript downnetwork
-    authd installfile interfaces /etc/network/
-    authd runscript upnetwork
-    HEAD -d http://www.google.com/ > /dev/null || rollback_network
+    RESULT=$(authd runscript commitnetworkconfig) || exiterror "${RESULT}"
 
     exitok
 
-}
-
-rollback_network() {
-    mv interfaces.orig interfaces
-    authd installfile interfaces /etc/network/
-    authd runscript downnetwork
-    authd runscript upnetwork
-    exiterror "Can not reach the internet (www.google.com) with new settings"
 }
 
 Module.delete() {

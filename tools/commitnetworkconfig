@@ -1,0 +1,42 @@
+#!/bin/bash
+
+ST_DIR=/var/openpanel/conf/staging/Networking
+
+cd ${ST_DIR}
+
+# Create a backup of the working interfaces file
+cp /etc/network/interfaces interfaces.orig || fatal "Could not create a backup of the current interfacesfile"
+
+# Create the new interfacesfile
+/var/openpanel/tools/makenetworkconfig  > interfaces || fatal "Could not create new interfacesfile"
+
+# Check if the new interfacesfile differs from the old one
+diff -q interfaces.orig interfaces && exitok
+
+# Deconfigure the current networkingsettings
+/var/openpanel/tools/downnetwork
+
+# Place the new interfacesfile
+cp interfaces /etc/network/interfaces || fatal "Could not install the new interfacesfile"
+
+# Configure the new networkingsettings
+/var/openpanel/tools/upnetwork
+
+# Test if the new settings seem to work
+HEAD -d http://www.google.com/ > /dev/null || rollback_network
+
+fatal() {
+    echo $1
+    exit 1
+}
+
+exitok() {
+    exit 0
+}
+
+rollback_network() {
+    /var/openpanel/downnetwork
+    cp interfaces.orig /etc/network/interfaces
+    /var/openpanel/tools/upnetwork
+    exiterror "Can not reach the internet (www.google.com) with new settings"
+}

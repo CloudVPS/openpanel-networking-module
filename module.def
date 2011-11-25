@@ -124,9 +124,5 @@ authd fileops
                             < group root
                             < perms 0644
 
-authd services
-    service networking
-
 authd scripts
-    script upnetwork
-    script downnetwork
+    script commitnetworkconfig

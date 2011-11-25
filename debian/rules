@@ -23,6 +23,7 @@ install:
 	install -m 755 tools/makenetworkconfig ${BUILD_ROOT}/var/openpanel/tools/makenetworkconfig
 	install -m 755 tools/upnetwork ${BUILD_ROOT}/var/openpanel/tools/upnetwork
 	install -m 755 tools/downnetwork ${BUILD_ROOT}/var/openpanel/tools/downnetwork
+	install -m 755 tools/commitnetworkconfig ${BUILD_ROOT}/var/openpanel/tools/commitnetworkconfig
 
 build:
 	mkmodulexml < module.def > module.xml
