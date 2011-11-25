@@ -67,6 +67,8 @@ done
   </dict>
 </openpanel.module>
 _EOF_
+
+    Module.update
     exitquiet
 }
 
@@ -108,7 +110,7 @@ Module.update() {
     [ ! -z ${pri_ns} ]     && echo "nameserver ${pri_ns}" >> resolv.conf
     [ ! -z ${sec_ns} ]     && echo "nameserver ${sec_ns}" >> resolv.conf
 
-    RESULT=$(authd runscript commitnetworkconfig) || exiterror "${RESULT}"
+    authd runscript commitnetworkconfig
 
     exitok
 
