@@ -1,5 +1,21 @@
 #!/bin/bash
 
+fatal() {
+    echo $1
+    exit 1
+}
+
+exitok() {
+    exit 0
+}
+
+rollback_network() {
+    /var/openpanel/tools/downnetwork
+    cp interfaces.orig /etc/network/interfaces
+    /var/openpanel/tools/upnetwork
+    fatal "Can not reach the internet (www.google.com) with new settings"
+}
+
 ST_DIR=/var/openpanel/conf/staging/Networking
 
 cd ${ST_DIR}
@@ -25,18 +41,3 @@ cp interfaces /etc/network/interfaces || fatal "Could not install the new interf
 # Test if the new settings seem to work
 HEAD -d http://www.google.com/ > /dev/null || rollback_network
 
-fatal() {
-    echo $1
-    exit 1
-}
-
-exitok() {
-    exit 0
-}
-
-rollback_network() {
-    /var/openpanel/downnetwork
-    cp interfaces.orig /etc/network/interfaces
-    /var/openpanel/tools/upnetwork
-    exiterror "Can not reach the internet (www.google.com) with new settings"
-}
