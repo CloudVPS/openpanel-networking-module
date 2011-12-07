@@ -126,7 +126,7 @@ Module.update() {
             echo -e "addr\t${address}\t${interface}\t${addr_address}\t${addr_netmask}\t${dev_name}\t${addr_desc}" >> ${DST}
         done
     done
-    _getroutes | while read route; do
+    for route in `_getroutes`; do
         prefix=$(_getrouteprefix ${route})
         gateway=$(_getroutegateway ${route})
         echo -e "route\t${route}\t${prefix}\t${gateway}" >> ${DST}
@@ -165,7 +165,7 @@ Networking:Address.update() {
     netmask=$(coreval Networking:Address netmask)
 
     V6="false"
-    echo ${address} | grep -q : && V6="true"
+    echo "${address}" | grep -q : && V6="true"
 
     if [ "$V6" = "false" ]; then
         [ $netmask -gt 32 ] && exiterror "Invalid value for netmask for an IPv4 address"
@@ -176,5 +176,38 @@ Networking:Address.update() {
     exitquiet
 }
 
-implement Networking.module
+Networking:Route.update() {
+    prefix=$(coreval Networking:route prefix)
+    gateway=$(coreval Networking:route gateway)
 
+    V6P="false"
+    echo "${prefix}" | grep -q : && V6P="true"
+    V6G="false"
+    echo "${gateway}" | grep -q : && V6G="true"
+
+    [ "${V6G}" = "${V6P}" ] || exiterror "IPv6 Routes should have IPv6 gateways and IPv4 routes should have IPv4 gateways"
+
+    Module.update
+
+    exitquiet
+}
+
+Networking:Route.create() {
+    Networking:Route.update
+
+    exitquiet
+}
+
+Networking:Address.create() {
+    Networking:Address.update
+
+    exitquiet
+}
+
+Networking:Interface.create() {
+    Networking:Interface.update
+
+    exitquiet
+}
+
+implement Networking.module

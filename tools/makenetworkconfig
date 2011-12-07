@@ -5,6 +5,7 @@
 from ipaddr import IPNetwork, IPAddress
 interfaces = {}
 gateways   = {}
+routes     = {}
 
 f = open('networking.def')
 for line in f:
@@ -66,6 +67,7 @@ for i in interfaces:
     if sn['enabled'] == "false":
         continue
 
+    print
     print "# Device: "+sn['device']
     print "# Description: "+sn['description']
     print ""
@@ -126,4 +128,7 @@ for i in interfaces:
         print "\tpre-down /sbin/ip address del %s/%s dev %s" % \
             (addr['address'], addr['netmask'], sn['device'])
 
-    print
+
+for x in routes:
+    print "\tpost-up /sbin/ip route add %s via %s" % \
+            (routes[x]['prefix'], routes[x]['gateway'])
