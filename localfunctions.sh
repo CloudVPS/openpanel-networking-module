@@ -3,6 +3,23 @@ _getinterfaces() {
     echo "${ifaces}"
 }
 
+_getroutes() {
+    routes=$(coreval --loop Networking Networking:Route)
+    echo "${routes}"
+}
+
+_getrouteprefix() {
+    route=$1
+    prefix=$(coreval Networking Networking:Route ${route} prefix)
+    echo "${prefix}"
+}
+
+_getroutegateway() {
+    route=$1
+    gateway=$(coreval Networking Networking:Route ${route} gateway)
+    echo "${gateway}"
+}
+
 _getinterfaceaddresses() {
     iface=$1
     addresses=$(coreval --loop Networking Networking:Interface ${iface} Networking:Address)

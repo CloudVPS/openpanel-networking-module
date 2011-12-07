@@ -107,6 +107,27 @@ class Networking:Address    < uuid 5c95ab2e-9f33-4a21-9241-1cfad5ba356a
                             < regexp [:numbers:]
                             < example 24 or 62
 
+# ----------------------------------------------------------------------------
+class Networking:Route      < uuid d3e7ed8c-7219-4a09-b4e4-a504be34291a
+                            < version 1
+                            < requires Networking
+                            < allchildren true
+                            < indexing auto
+                            < uniquein parent
+                            < shortname route
+                            < sortindex 90
+                            < title Routes
+                            < description Routes
+                            < capabilities update create delete admin
+                            < listview prefix gateway
+                            < required id prefix gateway
+
+    string prefix           : Prefix
+                            < regexp [:ipv46cidr:]
+
+    string gateway          : Gateway
+                            < regexp [:ip:]
+
 # ============================================================================
 # AUTHD
 # ============================================================================

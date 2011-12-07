@@ -13,6 +13,9 @@ Module.getconfig() {
 
     [ "${PRI_NS}" = "${SEC_NS}" ] && SEC_NS=""
 
+    ROUTES=$(ip -4 ro list | grep -v '^default' | grep via | awk ' { print $1">" $3 } ')
+    ROUTES="${ROUTES} "$(ip -6 ro list | grep -v '^default' | grep via | awk ' { print $1">"$3 } ')
+
     cat << _EOF_
 <openpanel.module>
   <dict id="Networking" type="class">
@@ -57,8 +60,28 @@ _EOF_
         </dict>
 _EOF_
 done
+
     cat << _EOF_
       </dict>
+_EOF_
+
+    if [ "${ROUTES}" != " " ]; then
+        for ROUTE in "${ROUTES}"; do
+            PREFIX=$(echo ${ROUTE} | cut -f1 -d'>')
+            GATEWAY=$(echo ${ROUTE} | cut -f2 -d'>')
+            UUID=$(/usr/bin/uuidgen)
+            cat <<_EOF_
+      <dict id="Networking:Route" type="class">
+        <dict id="${UUID}" type="object">
+          <string id="prefix">${PREFIX}</string>
+          <string id="gateway">${GATEWAY}</string>
+        </dict>
+      </dict>
+_EOF_
+        done
+    fi
+
+    cat << _EOF_
     </dict>
   </dict>
   <dict id="OpenCORE:Result">
@@ -87,7 +110,6 @@ Module.update() {
     [ ! -z ${v4_gateway} ] && echo -e "gw4\t${networking_id}\t${v4_gateway}" >> ${DST}
     [ ! -z ${v6_gateway} ] && echo -e "gw6\t${networking_id}\t${v6_gateway}" >> ${DST}
 
-    ifaces=( $(coreval --loop Networking Networking:Interface) )
     _getinterfaces | while read interface; do
         dev_dhcp=$(_getinterfacedhcp ${interface})
         dev_enabled=$(_getinterfaceenabled ${interface})
@@ -103,6 +125,11 @@ Module.update() {
             addr_netmask=$(_getaddressnetmask ${interface} ${address})
             echo -e "addr\t${address}\t${interface}\t${addr_address}\t${addr_netmask}\t${dev_name}\t${addr_desc}" >> ${DST}
         done
+    done
+    _getroutes | while read route; do
+        prefix=$(_getrouteprefix ${route})
+        gateway=$(_getroutegateway ${route})
+        echo -e "route\t${route}\t${prefix}\t${gateway}" >> ${DST}
     done
 
     :> resolv.conf

@@ -49,6 +49,8 @@ for line in f:
 
         interfaces[fields[2]]['has'+ipversion] = "true"
         interfaces[fields[2]].setdefault('addresses', []).append(addr)
+    elif cmd == "route":
+        routes[uuid] = dict(prefix=fields[2], gateway=fields[3])
 
 f.close()
 
