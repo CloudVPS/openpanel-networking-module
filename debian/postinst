@@ -43,7 +43,7 @@ case "$1" in
 
             echo "Forcing update of Networking.module"
             NICID=$(openpanel-cli "configure networking" "show nic" | grep 'lo' | cut -f2 -d ' ')
-            echo -e "configure networking\nconfigure nic ${NICID}\nset dev_description=Loopback\nexit\nexit\nexit\n" | openpanel-cli > /dev/null
+            echo "configure networking\nconfigure nic ${NICID}\nset dev_description=Loopback\nexit\nexit\nexit\n" | openpanel-cli > /dev/null
         fi
     ;;
 
