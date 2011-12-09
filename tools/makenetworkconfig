@@ -123,14 +123,14 @@ for i in interfaces:
 
     for x in sn.get('addresses', []):
         addr = x.values()[-1]
-        print "\tpost-up /sbin/ip address add %s/%s dev %s" % \
+        print "\tpost-up (/sbin/ip address add %s/%s dev %s || exit 0)" % \
             (addr['address'], addr['netmask'], sn['device'])
-        print "\tpre-down /sbin/ip address del %s/%s dev %s" % \
+        print "\tpre-down (/sbin/ip address del %s/%s dev %s || exit 0)" % \
             (addr['address'], addr['netmask'], sn['device'])
 
 
 for x in routes:
-    print "\tpost-up /sbin/ip route add %s via %s" % \
+    print "\tpost-up (/sbin/ip route add %s via %s || exit 0)" % \
             (routes[x]['prefix'], routes[x]['gateway'])
-    print "\tpre-down /sbin/ip route delete %s via %s" % \
+    print "\tpre-down (/sbin/ip route delete %s via %s || exit 0)" % \
             (routes[x]['prefix'], routes[x]['gateway'])
