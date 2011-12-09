@@ -37,12 +37,14 @@ case "$1" in
            }
         fi
 
-        echo "Restarting openpanel"
-        /etc/init.d/openpanel restart
+        if [ ! -f /etc/openpanel/networking.def ]; then
+            echo "Restarting openpanel"
+            /etc/init.d/openpanel restart
 
-        echo "Forcing update of Networking.module"
-        NICID=$(openpanel-cli "configure networking" "show nic" | grep 'lo' | cut -f2 -d ' ')
-        echo -e "configure networking\nconfigure nic ${NICID}\nset dev_description=Loopback\nexit\nexit\nexit\n" | openpanel-cli > /dev/null
+            echo "Forcing update of Networking.module"
+            NICID=$(openpanel-cli "configure networking" "show nic" | grep 'lo' | cut -f2 -d ' ')
+            echo -e "configure networking\nconfigure nic ${NICID}\nset dev_description=Loopback\nexit\nexit\nexit\n" | openpanel-cli > /dev/null
+        fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
