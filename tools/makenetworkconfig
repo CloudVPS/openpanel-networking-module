@@ -132,3 +132,5 @@ for i in interfaces:
 for x in routes:
     print "\tpost-up /sbin/ip route add %s via %s" % \
             (routes[x]['prefix'], routes[x]['gateway'])
+    print "\tpre-down /sbin/ip route delete %s via %s" % \
+            (routes[x]['prefix'], routes[x]['gateway'])
