@@ -91,7 +91,6 @@ _EOF_
 </openpanel.module>
 _EOF_
 
-    Module.update
     exitquiet
 }
 
