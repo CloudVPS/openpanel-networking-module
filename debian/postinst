@@ -36,6 +36,13 @@ case "$1" in
                chattr -i /etc/network/interfaces
            }
         fi
+
+        echo "Restarting openpanel"
+        /etc/init.d/openpanel restart
+
+        echo "Forcing update of Networking.module"
+        NICID=$(openpanel-cli "configure networking" "show nic" | grep 'lo' | cut -f2 -d ' ')
+        echo -e "configure networking\nconfigure nic ${NICID}\nset dev_description=Loopback\nexit\nexit\nexit\n" | openpanel-cli > /dev/null
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
