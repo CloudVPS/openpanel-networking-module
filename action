@@ -5,7 +5,7 @@
 Module.getconfig() {
     GATEWAY=$(ip ro list | grep default | cut -f 3 -d ' ')
     V6_GATEWAY=$(ip -6 ro list | grep default | cut -f 3 -d ' ')
-    INTERFACES=$(cat /proc/net/dev | grep : | cut -f 1 -d: | sed -e 's/ //g')
+    INTERFACES=$(cat /proc/net/dev | grep -v '(ppp|gre|sit|wlan)' | grep : | cut -f 1 -d: | sed -e 's/ //g')
 
     PRI_NS=$(grep ^nameserver /etc/resolv.conf | head -1 | awk ' { print $2 } ')
     SEC_NS=$(grep ^nameserver /etc/resolv.conf | head -2 | tail -1 | awk ' { print $2 } ')
