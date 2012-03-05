@@ -1,17 +1,25 @@
 #!/bin/bash
 
 RECONFIGURE="true"
+DEBUG="false"
+
+debug() {
+    [ "${DEBUG}" = "false" ] || echo $1 >> /tmp/commitnetworkconfig.$$
+}
 
 fatal() {
+    debug "fatal($1) called"
     echo -n "$1" >&2
     exit 1
 }
 
 exitok() {
+    debug "exitok() called"
     exit 0
 }
 
 rollback_network() {
+    debug "rollback_network() called"
     if [ "${RECONFIGURE}" = "true" ]; then
         /var/openpanel/tools/downnetwork
         cp interfaces.orig /etc/network/interfaces
@@ -26,29 +34,36 @@ ST_DIR=/var/openpanel/conf/staging/Networking
 cd ${ST_DIR}
 
 # Create backups
+debug "# Create backups"
 cp /etc/network/interfaces interfaces.orig || fatal "Could not create a backup of the current interfacesfile"
 cp /etc/resolv.conf resolv.conf.orig || fatal "Could not create a backup of the current resolv.conf"
 
 # Create the new interfacesfile
+debug "# Create the new interfacesfile"
 /var/openpanel/tools/makenetworkconfig  > interfaces || fatal "Could not create new interfacesfile"
 
 # Check if the new interfacesfile differs from the old one
+debug "# Check if the new interfacesfile differs from the old one"
 diff -q interfaces.orig interfaces > /dev/null 2>&1  && RECONFIGURE="false"
 
 if [ "${RECONFIGURE}" = "true" ]; then
 	# Deconfigure the current networkingsettings
+    debug "# Deconfigure the current networkingsettings"
 	/var/openpanel/tools/downnetwork
 	
 	# Place the new interfacesfile
+    debug "# Place the new interfacesfile"
 	cp interfaces /etc/network/interfaces || fatal "Could not install the new interfacesfile"
 	
 	# Configure the new networkingsettings
+    debug "# Configure the new networkingsettings"
 	/var/openpanel/tools/upnetwork
 fi
 
 cp resolv.conf /etc/resolv.conf
 
 # Test if the new settings seem to work
+debug "# Test if the new settings seem to work"
 HEAD -t5s -d http://www.google.com/ > /dev/null || rollback_network
 
 cp networking.def /etc/openpanel/networking.def
